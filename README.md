@@ -1,6 +1,6 @@
-# Análisis de Conocimiento en Ciencia Abierta - ATC26 ![ATC26 Logo](PresRep/Images/ATC26.png)
+# PreWorkshop ![ATC26 Logo](PresRep/Images/ATC26.png)
 
-Este proyecto contiene mi análisis de los datos recopilados en la encuesta ATC26 sobre el nivel de conocimiento en ciencia abierta. Incluye scripts de análisis en R, visualizaciones, tablas resumen y un reporte completo generado con Quarto.
+Estos son los materiales del preworkshop. El objetivo es introducir al uso de algunas herramientas de positron para el trabajo sobre datos. 
 
 ## Estructura del Proyecto
 
