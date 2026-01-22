@@ -1,0 +1,75 @@
+name: Publish Presentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'PresRep/**'
+      - '.github/workflows/publish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions@v2
+        with:
+          version: latest
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Render presentation
+        working-directory: PresRep
+        run: quarto render intro_positron.qmd
+
+      - name: Setup output directory
+        run: |
+          mkdir -p docs
+          # Create .nojekyll to prevent Jekyll processing
+          touch docs/.nojekyll
+          # Copy main HTML file as index.html
+          cp PresRep/intro_positron.html docs/index.html
+          # Copy Images directory
+          if [ -d "PresRep/Images" ]; then
+            mkdir -p docs/Images
+            cp -r PresRep/Images/* docs/Images/
+          fi
+          # Copy generated resources (reveal.js, etc.)
+          if [ -d "PresRep/intro_positron_files" ]; then
+            cp -r PresRep/intro_positron_files docs/
+          fi
+          # Fix relative paths in HTML if needed (Quarto should handle this, but just in case)
+          # This ensures all paths work correctly from the root
+          sed -i 's|href="/|href="./|g' docs/index.html || true
+          sed -i 's|src="/|src="./|g' docs/index.html || true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
